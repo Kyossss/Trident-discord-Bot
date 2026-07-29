@@ -9,9 +9,23 @@ async def fetch_resource_page(resource_id: int, slug: str) -> Optional[str]:
     url = f"https://builtbybit.com/resources/{slug}.{resource_id}/"
     logger.info(f"Fetching {url}")
     
+    headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://builtbybit.com/",
+        "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        "Sec-Ch-Ua-Mobile": "?0",
+        "Sec-Ch-Ua-Platform": '"Windows"',
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1"
+    }
+    
     try:
-        # impersonate="chrome" handles Cloudflare TLS fingerprinting
-        async with AsyncSession(impersonate="chrome") as session:
+        # impersonate="chrome110" or "chrome120" handles Cloudflare TLS fingerprinting
+        async with AsyncSession(impersonate="chrome110", headers=headers) as session:
             response = await session.get(url, timeout=15.0)
             
             if response.status_code == 200:
@@ -25,8 +39,23 @@ async def fetch_resource_page(resource_id: int, slug: str) -> Optional[str]:
 
 async def fetch_updates_page(resource_id: int, slug: str) -> Optional[str]:
     url = f"https://builtbybit.com/resources/{slug}.{resource_id}/updates"
+    
+    headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": f"https://builtbybit.com/resources/{slug}.{resource_id}/",
+        "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        "Sec-Ch-Ua-Mobile": "?0",
+        "Sec-Ch-Ua-Platform": '"Windows"',
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1"
+    }
+    
     try:
-        async with AsyncSession(impersonate="chrome") as session:
+        async with AsyncSession(impersonate="chrome110", headers=headers) as session:
             response = await session.get(url, timeout=15.0)
             if response.status_code == 200:
                 return response.text
